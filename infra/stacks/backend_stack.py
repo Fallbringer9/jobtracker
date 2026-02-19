@@ -12,10 +12,8 @@ from aws_cdk import (
     aws_logs as logs,
 )
 from constructs import Construct
-from pathlib import Path
 
 
-LAMBDA_SRC_DIR = str(Path(__file__).resolve().parents[2] / "services" / "api" / "src")
 
 class BackendStack(Stack):
 
@@ -62,7 +60,7 @@ class BackendStack(Stack):
             runtime=_lambda.Runtime.PYTHON_3_12,
             handler="app.handler",
             architecture=_lambda.Architecture.ARM_64,
-            code=_lambda.Code.from_asset(LAMBDA_SRC_DIR),
+            code=_lambda.Code.from_asset("services/api/src"),
             environment={
                 "TABLE_NAME": table.table_name,
             },
