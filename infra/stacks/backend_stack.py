@@ -9,9 +9,13 @@ from aws_cdk import (
     Tags,
     aws_cognito as cognito,
     aws_apigatewayv2_authorizers as authorizers,
+    aws_logs as logs,
 )
 from constructs import Construct
+from pathlib import Path
 
+
+LAMBDA_SRC_DIR = str(Path(__file__).resolve().parents[2] / "services" / "api" / "src")
 
 class BackendStack(Stack):
 
@@ -56,17 +60,13 @@ class BackendStack(Stack):
             self,
             "BackendLambda",
             runtime=_lambda.Runtime.PYTHON_3_12,
-            handler="index.handler",
+            handler="app.handler",
             architecture=_lambda.Architecture.ARM_64,
-            code=_lambda.Code.from_inline(
-                """
-def handler(event, context):
-    return {
-        "statusCode": 200,
-        "body": "Backend alive"
-    }
-"""
-            ),
+            code=_lambda.Code.from_asset(LAMBDA_SRC_DIR),
+            environment={
+                "TABLE_NAME": table.table_name,
+            },
+            log_retention=logs.RetentionDays.ONE_WEEK,
         )
 
         table.grant_read_write_data(function)
