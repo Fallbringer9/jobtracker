@@ -95,6 +95,30 @@ class BackendStack(Stack):
             authorizer=jwt_authorizer,
         )
 
+        api.add_routes(
+            path="/applications",
+            methods=[apigw.HttpMethod.GET, apigw.HttpMethod.POST],
+            integration=integrations.HttpLambdaIntegration(
+                "ApplicationsCollectionIntegration",
+                function,
+            ),
+            authorizer=jwt_authorizer,
+        )
+
+        api.add_routes(
+            path="/applications/{id}",
+            methods=[
+                apigw.HttpMethod.GET,
+                apigw.HttpMethod.PATCH,
+                apigw.HttpMethod.DELETE,
+            ],
+            integration=integrations.HttpLambdaIntegration(
+                "ApplicationsItemIntegration",
+                function,
+            ),
+            authorizer=jwt_authorizer,
+        )
+
         # Outputs
         CfnOutput(self, "ApiUrl", value=api.url)
         CfnOutput(self, "TableName", value=table.table_name)
