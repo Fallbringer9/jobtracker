@@ -40,7 +40,7 @@ class BackendStack(Stack):
             self,
             "BackendLambda",
             runtime=_lambda.Runtime.PYTHON_3_12,
-            handler="handler.handler",
+            handler="index.handler",
             architecture=_lambda.Architecture.ARM_64,
             code=_lambda.Code.from_inline(
                 """
