@@ -7,6 +7,8 @@ from aws_cdk import (
     RemovalPolicy,
     CfnOutput,
     Tags,
+    aws_cognito as cognito,
+    aws_apigatewayv2_authorizers as authorizers,
 )
 from constructs import Construct
 
@@ -35,6 +37,20 @@ class BackendStack(Stack):
             removal_policy=RemovalPolicy.DESTROY,
         )
 
+        # Cognito User Pool
+        user_pool = cognito.UserPool(
+            self,
+            "JobTrackerUserPool",
+            self_sign_up_enabled=True,
+            sign_in_aliases=cognito.SignInAliases(email=True),
+        )
+
+        user_pool_client = cognito.UserPoolClient(
+            self,
+            "JobTrackerUserPoolClient",
+            user_pool=user_pool,
+        )
+
         # Lambda Function
         function = _lambda.Function(
             self,
@@ -61,6 +77,12 @@ def handler(event, context):
             "BackendApi",
         )
 
+        jwt_authorizer = authorizers.HttpJwtAuthorizer(
+            "JwtAuthorizer",
+            jwt_issuer=user_pool.user_pool_provider_url,
+            jwt_audience=[user_pool_client.user_pool_client_id],
+        )
+
         api.add_routes(
             path="/health",
             methods=[apigw.HttpMethod.GET],
@@ -68,8 +90,11 @@ def handler(event, context):
                 "HealthIntegration",
                 function
             ),
+            authorizer=jwt_authorizer,
         )
 
         # Outputs
         CfnOutput(self, "ApiUrl", value=api.url)
         CfnOutput(self, "TableName", value=table.table_name)
+        CfnOutput(self, "UserPoolId", value=user_pool.user_pool_id)
+        CfnOutput(self, "UserPoolClientId", value=user_pool_client.user_pool_client_id)
