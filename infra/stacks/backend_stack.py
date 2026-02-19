@@ -54,6 +54,7 @@ class BackendStack(Stack):
             self,
             "JobTrackerUserPoolClient",
             user_pool=user_pool,
+            auth_flows=cognito.AuthFlow(user_password=True),
         )
 
         # Lambda Function
