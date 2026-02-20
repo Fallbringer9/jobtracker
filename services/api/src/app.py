@@ -3,7 +3,13 @@ from __future__ import annotations
 from typing import Any, Dict
 
 from core.response import json_response, not_found
-from routes.applications import create_application, get_application, list_applications, patch_application
+from routes.applications import (
+    create_application,
+    get_application,
+    list_applications,
+    patch_application,
+    delete_application,
+)
 
 
 def handler(event: Dict[str, Any], context: Any):
@@ -42,5 +48,8 @@ def handler(event: Dict[str, Any], context: Any):
 
         if method == "PATCH":
             return patch_application(event, app_id)
+
+        if method == "DELETE":
+            return delete_application(event, app_id)
 
     return not_found("Route not matched")

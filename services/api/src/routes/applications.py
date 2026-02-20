@@ -275,3 +275,35 @@ def patch_application(event: Dict[str, Any], app_id: str):
 
     updated = response.get("Attributes") or {}
     return json_response(updated)
+
+
+
+def delete_application(event: Dict[str, Any], app_id: str):
+    """DELETE /applications/{id} - Delete an application for the authenticated user."""
+    sub = get_sub(event)
+    if not sub:
+        return unauthorized()
+
+    pk = f"USER#{sub}"
+    sk = f"APP#{app_id}"
+
+    table = get_table()
+
+    # Ensure the item exists before deleting (clearer error semantics)
+    try:
+        current = table.get_item(Key={"PK": pk, "SK": sk}).get("Item")
+    except Exception:
+        return server_error("Failed to read application before delete")
+
+    if not current:
+        return not_found("Application not found")
+
+    try:
+        table.delete_item(Key={"PK": pk, "SK": sk})
+    except Exception:
+        return server_error("Failed to delete application")
+
+    return json_response({
+        "deleted": True,
+        "applicationId": app_id,
+    })
