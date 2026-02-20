@@ -6,8 +6,9 @@ from datetime import datetime, timezone
 from typing import Any, Dict
 
 from boto3.dynamodb.conditions import Key
+
 from core.auth import get_sub
-from core.response import bad_request, json_response, server_error, unauthorized
+from core.response import bad_request, json_response, server_error, unauthorized, not_found
 from data.dynamo import get_table
 
 
@@ -48,7 +49,6 @@ def create_application(event: Dict[str, Any]):
     except json.JSONDecodeError:
         return bad_request("Invalid JSON body")
 
-    # Required fields (simple V1 validation)
     title = (body.get("title") or "").strip()
     company = (body.get("company") or "").strip()
     if not title or not company:
@@ -66,14 +66,12 @@ def create_application(event: Dict[str, Any]):
         "applicationId": app_id,
         "title": title,
         "company": company,
-        # Optional fields
         "location": (body.get("location") or "").strip(),
-        "appliedDate": (body.get("appliedDate") or "").strip(),  # YYYY-MM-DD (front responsibility)
+        "appliedDate": (body.get("appliedDate") or "").strip(),
         "jobUrl": (body.get("jobUrl") or "").strip(),
         "mission": (body.get("mission") or "").strip(),
         "notes": (body.get("notes") or "").strip(),
         "contact": (body.get("contact") or "").strip(),
-        # Kanban status
         "status": "IN_PROGRESS",
         "history": [
             {
@@ -93,3 +91,24 @@ def create_application(event: Dict[str, Any]):
         return server_error("Failed to create application")
 
     return json_response(item, status=201)
+
+
+def get_application(event: Dict[str, Any], app_id: str):
+    sub = get_sub(event)
+    if not sub:
+        return unauthorized()
+
+    pk = f"USER#{sub}"
+    sk = f"APP#{app_id}"
+
+    table = get_table()
+    try:
+        response = table.get_item(Key={"PK": pk, "SK": sk})
+    except Exception:
+        return server_error("Failed to get application")
+
+    item = response.get("Item")
+    if not item:
+        return not_found("Application not found")
+
+    return json_response(item)
