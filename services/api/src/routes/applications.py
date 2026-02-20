@@ -2,14 +2,19 @@ from __future__ import annotations
 
 import json
 import uuid
+import logging
 from datetime import datetime, timezone
 from typing import Any, Dict
 
 from boto3.dynamodb.conditions import Attr, Key
+from botocore.exceptions import ClientError
 
 from core.auth import get_sub
 from core.response import bad_request, json_response, server_error, unauthorized, not_found
 from data.dynamo import get_table
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 
@@ -204,7 +209,14 @@ def patch_application(event: Dict[str, Any], app_id: str):
     # Load current item to detect status changes (simple and explicit for V1)
     try:
         current = table.get_item(Key={"PK": pk, "SK": sk}).get("Item")
+    except ClientError as e:
+        err = e.response.get("Error", {})
+        code = err.get("Code") or "ClientError"
+        msg = err.get("Message") or code
+        logger.exception("DynamoDB get_item failed: %s - %s", code, msg)
+        return server_error(f"DynamoDB read failed: {code}")
     except Exception:
+        logger.exception("Unexpected error during get_item")
         return server_error("Failed to read current application")
 
     if not current:
@@ -270,7 +282,15 @@ def patch_application(event: Dict[str, Any], app_id: str):
             ConditionExpression=condition_expression,
             ReturnValues="ALL_NEW",
         )
+    except ClientError as e:
+        err = e.response.get("Error", {})
+        code = err.get("Code") or "ClientError"
+        msg = err.get("Message") or code
+        logger.exception("DynamoDB update_item failed: %s - %s", code, msg)
+        # Return only the code to the client (message stays in logs)
+        return server_error(f"DynamoDB update failed: {code}")
     except Exception:
+        logger.exception("Unexpected error during update_item")
         return server_error("Failed to update application")
 
     updated = response.get("Attributes") or {}
