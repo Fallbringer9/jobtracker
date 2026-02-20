@@ -5,7 +5,9 @@ name: Deploy Infra (CDK)
     branches: ["main"]
     paths:
       - "infra/**"
+      - "services/api/src/**"
       - ".github/workflows/deploy_infra.yml"
+      - ".github/workflows/**"
 
 permissions:
   id-token: write
