@@ -6,7 +6,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Any, Dict
 
-from boto3.dynamodb.conditions import Attr, Key
+from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
 
 from core.auth import get_sub
@@ -271,7 +271,8 @@ def patch_application(event: Dict[str, Any], app_id: str):
     update_expression = "SET " + ", ".join(set_parts)
 
     # Ensure the item exists (defensive)
-    condition_expression = Attr("PK").exists() & Attr("SK").exists()
+    # Use a plain string condition to avoid extra ExpressionAttributeNames placeholders.
+    condition_expression = "attribute_exists(PK) AND attribute_exists(SK)"
 
     try:
         response = table.update_item(
