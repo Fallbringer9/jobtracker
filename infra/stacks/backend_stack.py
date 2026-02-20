@@ -10,6 +10,7 @@ from aws_cdk import (
     aws_cognito as cognito,
     aws_apigatewayv2_authorizers as authorizers,
     aws_logs as logs,
+    Duration,
 )
 from constructs import Construct
 from pathlib import Path
@@ -65,6 +66,8 @@ class BackendStack(Stack):
             handler="app.handler",
             architecture=_lambda.Architecture.ARM_64,
             code=_lambda.Code.from_asset(LAMBDA_SRC_DIR),
+            timeout=Duration.seconds(15),
+            memory_size=256,
             environment={
                 "TABLE_NAME": table.table_name,
             },
@@ -77,6 +80,22 @@ class BackendStack(Stack):
         api = apigw.HttpApi(
             self,
             "BackendApi",
+            cors_preflight=apigw.CorsPreflightOptions(
+                allow_origins=[
+                    "http://localhost:5173",
+                    "http://localhost:3000",
+                ],
+                allow_methods=[
+                    apigw.CorsHttpMethod.GET,
+                    apigw.CorsHttpMethod.POST,
+                    apigw.CorsHttpMethod.PATCH,
+                    apigw.CorsHttpMethod.DELETE,
+                ],
+                allow_headers=[
+                    "Authorization",
+                    "Content-Type",
+                ],
+            ),
         )
 
         jwt_authorizer = authorizers.HttpJwtAuthorizer(

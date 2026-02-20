@@ -5,11 +5,12 @@ from typing import Any, Dict
 from core.response import json_response, not_found
 from routes.applications import (
     create_application,
+    delete_application,
     get_application,
     list_applications,
     patch_application,
-    delete_application,
 )
+
 
 def handler(event: Dict[str, Any], context: Any):
     request_ctx = event.get("requestContext", {})
@@ -18,15 +19,18 @@ def handler(event: Dict[str, Any], context: Any):
 
     route_key = request_ctx.get("routeKey") or event.get("routeKey")
 
+    # Health
     if route_key == "GET /health" or (method == "GET" and path == "/health"):
         return json_response({"ok": True, "message": "Backend alive"})
 
+    # Applications collection
     if route_key == "GET /applications":
         return list_applications(event)
 
     if route_key == "POST /applications":
         return create_application(event)
 
+    # Application by ID
     if (
         route_key in {"GET /applications/{id}", "PATCH /applications/{id}", "DELETE /applications/{id}"}
         or (method in {"GET", "PATCH", "DELETE"} and path.startswith("/applications/"))

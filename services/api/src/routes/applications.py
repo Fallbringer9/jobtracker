@@ -324,7 +324,9 @@ def delete_application(event: Dict[str, Any], app_id: str):
     except Exception:
         return server_error("Failed to delete application")
 
-    return json_response({
-        "deleted": True,
-        "applicationId": app_id,
-    })
+    return json_response(
+        {
+            "deleted": True,
+            "applicationId": app_id,
+        }
+    )
