@@ -35,8 +35,8 @@ def handler(event: Dict[str, Any], context: Any):
             app_id = path[len("/applications/") :].strip("/")
 
         if not app_id:
-            return not_found()
+            return not_found("Missing application id")
 
         return get_application(event, app_id)
 
-    return not_found()
+    return not_found("Route not matched")

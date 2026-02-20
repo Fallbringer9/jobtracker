@@ -12,6 +12,7 @@ from core.response import bad_request, json_response, server_error, unauthorized
 from data.dynamo import get_table
 
 
+
 def _now_iso() -> str:
     """UTC timestamp in ISO-8601 format."""
     return datetime.now(timezone.utc).isoformat()
