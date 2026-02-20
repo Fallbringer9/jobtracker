@@ -7,15 +7,18 @@ from routes.applications import create_application, get_application, list_applic
 
 
 def handler(event: Dict[str, Any], context: Any):
-    method = event.get("requestContext", {}).get("http", {}).get("method")
-    path = event.get("rawPath", "")
-    route_key = event.get("routeKey") or f"{method} {path}"
+    request_ctx = event.get("requestContext", {})
+    method = request_ctx.get("http", {}).get("method")
+    path = event.get("rawPath") or request_ctx.get("http", {}).get("path") or ""
 
-    # Health
+
+    route_key = request_ctx.get("routeKey") or event.get("routeKey")
+
+
     if route_key == "GET /health":
         return json_response({"ok": True, "message": "Backend alive"})
 
-    # Applications collection
+
     if route_key == "GET /applications":
         return list_applications(event)
 
@@ -23,11 +26,17 @@ def handler(event: Dict[str, Any], context: Any):
         return create_application(event)
 
     # Application by ID
-    if route_key == "GET /applications/{id}":
+    if (route_key == "GET /applications/{id}") or (method == "GET" and path.startswith("/applications/")):
         path_params = event.get("pathParameters") or {}
         app_id = path_params.get("id")
+
+        # Fallback: derive id from the path (keeps routing resilient in local tests)
+        if not app_id:
+            app_id = path[len("/applications/") :].strip("/")
+
         if not app_id:
             return not_found()
+
         return get_application(event, app_id)
 
     return not_found()
