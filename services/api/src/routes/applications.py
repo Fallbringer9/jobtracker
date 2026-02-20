@@ -243,14 +243,18 @@ def patch_application(event: Dict[str, Any], app_id: str):
         "closedReason": "#closedReason",
         "history": "#history",
     }
-    for k, v in name_map.items():
-        expr_names[v] = k
+
+    def _use_name(field: str) -> str:
+        placeholder = name_map[field]
+        # Register only the placeholders that are actually referenced
+        expr_names[placeholder] = field
+        return placeholder
 
     # Regular field updates
     for field, value in normalized.items():
         placeholder = f":{field}"
         expr_values[placeholder] = value
-        set_parts.append(f"{name_map[field]} = {placeholder}")
+        set_parts.append(f"{_use_name(field)} = {placeholder}")
 
     # History append only if status changes
     new_status = normalized.get("status")
@@ -264,8 +268,9 @@ def patch_application(event: Dict[str, Any], app_id: str):
                 "to": new_status,
             }
         ]
+        history_name = _use_name("history")
         set_parts.append(
-            f"{name_map['history']} = list_append(if_not_exists({name_map['history']}, :empty_list), :history_event)"
+            f"{history_name} = list_append(if_not_exists({history_name}, :empty_list), :history_event)"
         )
 
     update_expression = "SET " + ", ".join(set_parts)
