@@ -1,9 +1,9 @@
 {
-  "env": "dev",
+  "env": "prod",
   "apiUrl": "https://553psskbbi.execute-api.eu-west-3.amazonaws.com",
   "cognitoDomain": "https://manuworld-dev.auth.eu-west-3.amazoncognito.com",
   "clientId": "qgedvbpcmffkdnrrm49v1ot51",
-  "redirectUri": "http://localhost:5173/",
-  "logoutUri": "http://localhost:5173/",
+  "redirectUri": "https://d1yqbma7giiua7.cloudfront.net/",
+  "logoutUri": "https://d1yqbma7giiua7.cloudfront.net/",
   "region": "eu-west-3"
 }
