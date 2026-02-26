@@ -1,6 +1,20 @@
-
-
 # JobTracker – SaaS Serverless orienté Cloud
+
+## Aperçu visuel
+
+### Interface principale
+
+![Dashboard](./screenshots/dashboard.png)
+
+### Authentification (Cognito Hosted UI)
+
+![Authentification](./screenshots/auth.png)
+
+### Architecture Cloud
+
+![Architecture](./screenshots/architecture.png)
+
+---
 
 ## Vision du projet
 
