@@ -3,7 +3,7 @@
   "apiUrl": "https://553psskbbi.execute-api.eu-west-3.amazonaws.com",
   "cognitoDomain": "https://manuworld-dev.auth.eu-west-3.amazoncognito.com",
   "clientId": "qgedvbpcmffkdnrrm49v1ot51",
-  "redirectUri": "https://d1yqbma7giiua7.cloudfront.net/",
-  "logoutUri": "https://d1yqbma7giiua7.cloudfront.net/",
+  "redirectUri": "https://app.manuworld.fr/",
+  "logoutUri": "https://app.manuworld.fr/",
   "region": "eu-west-3"
 }

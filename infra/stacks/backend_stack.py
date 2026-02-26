@@ -84,7 +84,7 @@ class BackendStack(Stack):
                 allow_origins=[
                     "http://localhost:5173",
                     "http://localhost:3000",
-                    "https://d1yqbma7giiua7.cloudfront.net",
+                    "https://app.manuworld.fr",
                 ],
                 allow_methods=[
                     apigw.CorsHttpMethod.GET,
