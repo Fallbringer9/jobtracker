@@ -1,6 +1,6 @@
 {
   "env": "prod",
-  "apiUrl": "https://553psskbbi.execute-api.eu-west-3.amazonaws.com",
+  "apiUrl": "https://553psskbbi.execute-api.eu-west-3.amazonaws.com/",
   "cognitoDomain": "https://manuworld-dev.auth.eu-west-3.amazoncognito.com",
   "clientId": "qgedvbpcmffkdnrrm49v1ot51",
   "redirectUri": "https://app.manuworld.fr/",
