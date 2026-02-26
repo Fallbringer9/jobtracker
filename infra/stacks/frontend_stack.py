@@ -46,6 +46,20 @@ class FrontendStack(Stack):
                 cache_policy=cloudfront.CachePolicy.CACHING_OPTIMIZED,
                 compress=True,
             ),
+            additional_behaviors={
+                "config.json": cloudfront.BehaviorOptions(
+                    origin=origin,
+                    viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                    cache_policy=cloudfront.CachePolicy.CACHING_DISABLED,
+                    compress=True,
+                ),
+                "index.html": cloudfront.BehaviorOptions(
+                    origin=origin,
+                    viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                    cache_policy=cloudfront.CachePolicy.CACHING_DISABLED,
+                    compress=True,
+                ),
+            },
             default_root_object="index.html",
             error_responses=[
                 cloudfront.ErrorResponse(
