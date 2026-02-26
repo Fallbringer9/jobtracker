@@ -10,7 +10,7 @@
 
 ![Authentification](./screenshots/auth.png)
 
-### Architecture Cloud
+### Card d’une offre d’emploi
 
 ![Architecture](./screenshots/architecture.png)
 
