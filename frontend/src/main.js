@@ -123,7 +123,28 @@ async function main() {
   if (code) {
     showLoading("Connexion… 🔐");
 
-    const tokens = await exchangeCodeForTokens(config, code);
+    let tokens;
+    try {
+      tokens = await exchangeCodeForTokens(config, code);
+    } catch (err) {
+      const msg = String(err?.message || "");
+      // When redirect_uri/origin changes (CloudFront -> custom domain), the PKCE verifier stored in sessionStorage
+      // may be missing. In that case, restart the login flow cleanly.
+      if (msg.toLowerCase().includes("pkce") || msg.toLowerCase().includes("verifier")) {
+        console.error(err);
+        showLoading("Session de connexion expirée. Relance de la connexion…");
+        // remove the code from the URL so we don't loop on the same failing exchange
+        clearCodeFromUrl();
+        // defensive cleanup
+        sessionStorage.removeItem("pkce_code_verifier");
+        sessionStorage.removeItem("pkce_verifier");
+        sessionStorage.removeItem("id_token");
+        sessionStorage.removeItem("access_token");
+        startLogin(config);
+        return;
+      }
+      throw err;
+    }
 
     sessionStorage.setItem("id_token", tokens.id_token || "");
     sessionStorage.setItem("access_token", tokens.access_token || "");
