@@ -232,7 +232,6 @@ async function main() {
     root.setGlobalError && root.setGlobalError("");
     return;
   }
-# If no code and no token, show the login button
   root.innerHTML = `
     <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; font-family:system-ui; background: radial-gradient(1200px 600px at 20% 10%, rgba(255,255,255,0.10), rgba(0,0,0,0)), radial-gradient(900px 500px at 85% 30%, rgba(255,255,255,0.06), rgba(0,0,0,0)), #0b0e14; color: rgba(255,255,255,0.92);">
       <div style="width:min(920px, 100%); display:grid; gap:18px; grid-template-columns: 1.05fr 0.95fr; align-items:stretch;">
