@@ -4,6 +4,7 @@ from aws_cdk import (
     RemovalPolicy,
     Duration,
     aws_s3 as s3,
+    aws_s3_deployment as s3deploy,
     aws_cloudfront as cloudfront,
     aws_cloudfront_origins as origins,
 )
@@ -75,6 +76,19 @@ class FrontendStack(Stack):
                     ttl=Duration.minutes(1),
                 ),
             ],
+        )
+
+        # Deploy built frontend (Vite) to S3 and invalidate CloudFront
+        # IMPORTANT: this path is resolved from the CDK app working directory (we run `cd infra` in CI),
+        # so the Vite build output should exist at: ../frontend/dist
+        s3deploy.BucketDeployment(
+            self,
+            "DeployFrontend",
+            sources=[s3deploy.Source.asset("../frontend/dist")],
+            destination_bucket=bucket,
+            distribution=dist,
+            distribution_paths=["/*"],
+            prune=True,
         )
 
         CfnOutput(self, "FrontendBucketName", value=bucket.bucket_name)
